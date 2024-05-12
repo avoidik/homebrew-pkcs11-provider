@@ -1,8 +1,8 @@
 class Pkcs11Provider < Formula
   desc "Openssl 3.x provider to access software or hardware tokens via PKCS#11 interface"
   homepage "https://github.com/latchset/pkcs11-provider"
-  url "https://github.com/latchset/pkcs11-provider/releases/download/v0.2/pkcs11-provider-0.2.tar.xz"
-  sha256 "c2650d4e5883fa5b13522fde820854e1921258aec6f11b9b10b46ed19d42053d"
+  url "https://github.com/latchset/pkcs11-provider/releases/download/v0.3/pkcs11-provider-0.3.tar.xz"
+  sha256 "72275ddf59787c810d13c6edc756ba57db014ca9d1613e09fd22302b7a725216"
   license "Apache-2.0"
   head "https://github.com/latchset/pkcs11-provider.git", branch: "main"
 
