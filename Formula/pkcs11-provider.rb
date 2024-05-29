@@ -17,7 +17,7 @@ class Pkcs11Provider < Formula
   depends_on "openssl@3"
 
   def install
-    inreplace "src/meson.build", "install_dir: provider_path,", "install_dir: '#{lib}/pkcs11-provider'"
+    inreplace "src/meson.build", "install_dir: provider_path,", "install_dir: '#{lib}'"
 
     system "meson", "setup", "build", *std_meson_args
     system "meson", "compile", "-C", "build", "--verbose"
@@ -36,8 +36,8 @@ class Pkcs11Provider < Formula
   end
 
   test do
-    ENV["PKCS11_PROVIDER_MODULE"] = "#{lib}/pkcs11-provider/pkcs11.dylib"
-    ENV["OPENSSL_MODULES"] = "#{lib}/pkcs11-provider"
+    ENV["PKCS11_PROVIDER_MODULE"] = "#{lib}/pkcs11.dylib"
+    ENV["OPENSSL_MODULES"] = "#{lib}"
     system "openssl", "list", "-provider", "pkcs11"
     system "echo", "#{lib}"
   end
