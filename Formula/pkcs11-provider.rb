@@ -29,16 +29,16 @@ class Pkcs11Provider < Formula
       Please keep in mind, you will need to adjust the default openssl.cnf file, usually at:
         #{Formula["openssl@3"].pkgetc}/openssl.cnf
       Alternatively, you may set the provider via the environment variable as follows:
-        export PKCS11_PROVIDER_MODULE="#{opt_lib}/ossl-modules/pkcs11.dylib"
+        export PKCS11_PROVIDER_MODULE="#{lib}/pkcs11-provider/pkcs11.dylib"
       Check official guide for more details:
         https://github.com/latchset/pkcs11-provider/blob/main/HOWTO.md
     EOS
   end
 
   test do
-    ENV["PKCS11_PROVIDER_MODULE"] = "#{opt_lib}/ossl-modules/pkcs11.dylib"
-    ENV["OPENSSL_MODULES"] = "#{opt_lib}/ossl-modules"
+    ENV["PKCS11_PROVIDER_MODULE"] = "#{lib}/pkcs11-provider/pkcs11.dylib"
+    ENV["OPENSSL_MODULES"] = "#{lib}/pkcs11-provider"
     system "openssl", "list", "-provider", "pkcs11"
-    system "echo", "#{opt_lib}"
+    system "echo", "#{lib}"
   end
 end
