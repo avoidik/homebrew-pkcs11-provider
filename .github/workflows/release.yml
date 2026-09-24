@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Build and test formula
+    runs-on: macos-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up local tap
+        run: |
+          brew tap-new --no-git local/ci
+          cp Formula/pkcs11-provider.rb "$(brew --repository)/Library/Taps/local/homebrew-ci/Formula/"
+
+      - name: Install from source
+        run: brew install --build-from-source --verbose local/ci/pkcs11-provider
+
+      - name: Test
+        run: brew test --verbose local/ci/pkcs11-provider
+
+  release:
+    name: Tag and release
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read formula version
+        id: formula
+        run: |
+          version=$(sed -nE 's/^[[:space:]]*version "([^"]+)".*/\1/p' Formula/pkcs11-provider.rb | head -n1)
+          if [ -z "$version" ]; then
+            echo "::error::version not found in Formula/pkcs11-provider.rb"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create release if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.formula.outputs.version }}
+        run: |
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists, nothing to do"
+            exit 0
+          fi
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "Release $VERSION" \
+            --notes "https://github.com/openssl-projects/pkcs11-provider/releases/tag/$tag"
